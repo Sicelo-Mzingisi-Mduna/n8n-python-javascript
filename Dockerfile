@@ -9,10 +9,16 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     tini \
     supervisor \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install n8n
 RUN npm install -g n8n@latest
+
+# Install official n8n task runner launcher
+RUN curl -L -o /usr/local/bin/task-runner-launcher \
+    https://github.com/n8n-io/task-runner-launcher/releases/latest/download/task-runner-launcher-linux-amd64 \
+    && chmod +x /usr/local/bin/task-runner-launcher
 
 WORKDIR /home/node
 
@@ -28,5 +34,4 @@ EXPOSE 5679
 
 ENTRYPOINT ["tini", "--"]
 
-# Run supervisor as root (it will manage the n8n processes)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
