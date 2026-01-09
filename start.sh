@@ -28,5 +28,5 @@ npx n8n task-runner &
 echo "Starting Python task runner..."
 python3 /home/node/n8n-python-javascript/run-python-tasks.py &
 
-# Wait for all background processes
+# Wait for all background processe
 wait
