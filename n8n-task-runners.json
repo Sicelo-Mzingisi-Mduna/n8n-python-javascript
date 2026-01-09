@@ -1,0 +1,11 @@
+{
+  "runners": [
+    {
+      "name": "python-runner",
+      "type": "python",
+      "command": ["python3"],
+      "workingDirectory": "/home/node",
+      "maxConcurrency": 2
+    }
+  ]
+}

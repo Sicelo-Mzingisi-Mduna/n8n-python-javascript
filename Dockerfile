@@ -27,6 +27,9 @@ WORKDIR /home/node
 # Copy supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Copy the task runner config
+COPY n8n-task-runners.json /etc/n8n-task-runners.json
+
 # Set permissions for the node user
 RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
 
