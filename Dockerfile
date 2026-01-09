@@ -24,19 +24,22 @@ RUN curl -fL -o /tmp/task-runner-launcher.tar.gz \
 
 WORKDIR /home/node
 
+# Ensure n8n home exists
+RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
+
 # Copy supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Copy the task runner config
-COPY n8n-task-runners.json /etc/n8n-task-runners.json
+# Copy the task runner config to n8n home
+COPY n8n-task--runners.json /home/node/.n8n/n8n-task--runners.json
+RUN chown node:node /home/node/.n8n/n8n-task--runners.json
 
-# Set permissions for the node user
-RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
-
+# Set environment variable for task runners
+ENV N8N_TASK_RUNNERS_FILE=/home/node/.n8n/n8n-task--runners.json
 ENV NODE_ENV=production
+
 EXPOSE 5678
 EXPOSE 5679
 
 ENTRYPOINT ["tini", "--"]
-
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
