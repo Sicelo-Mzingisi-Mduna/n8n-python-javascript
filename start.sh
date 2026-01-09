@@ -21,12 +21,11 @@ sleep 5
 
 # --- Start JavaScript task runner ---
 echo "Starting JavaScript task runner..."
-npx n8n task-runner &
+n8n task-runner &
 
 # --- Start Python task runner ---
-# Update the path to your Python task runner script
 echo "Starting Python task runner..."
 python3 /home/node/n8n-python-javascript/run-python-tasks.py &
 
-# Wait for all background processe
+# Wait for all background processes
 wait
