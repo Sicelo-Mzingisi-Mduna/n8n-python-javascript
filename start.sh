@@ -1,35 +1,45 @@
 #!/bin/bash
-# ===================================================
-# n8n startup script for Render (External Mode)
-# ===================================================
-
 set -e
 
-# Ensure global npm binaries are in PATH
-export PATH=$PATH:/usr/local/bin
+# 1. Cleanup & Path Security
+# Using absolute paths is the safest way to ensure the commands are found
+N8N_BIN=$(which n8n || echo "/usr/local/bin/n8n")
+
+# Kill any ghost processes if the container restarted internally
+fuser -k 5678/tcp || true
+fuser -k 5679/tcp || true
 
 echo "--- 1. Starting n8n Main Server ---"
-# Start the main process
-n8n start &
+# We run the main server in the background
+$N8N_BIN start &
+MAIN_PID=$!
 
-# Wait for the main server to actually start listening on 5678
-# This helps Render detect the service is live
-echo "Waiting for n8n to start listening on port 5678..."
-for i in {1..30}; do
-    if ss -lnt | grep -q :5678; then
-        echo "n8n is up!"
-        break
-    fi
-    sleep 2
+# 2. Wait for Port Binding
+# This loop ensures the Broker (5679) is actually listening before the worker tries to join
+echo "Waiting for n8n Broker to initialize on port 5679..."
+MAX_RETRIES=20
+COUNT=0
+until ss -lnt | grep -q :5679; do
+  if [ $COUNT -eq $MAX_RETRIES ]; then
+    echo "Error: n8n Main Server failed to start the Broker in time."
+    exit 1
+  fi
+  sleep 2
+  ((COUNT++))
 done
 
 echo "--- 2. Starting External Python Runner ---"
-# In newer n8n versions, the python runner is launched via the 'worker' command
-# with the --concurrency and --task-runner flags
-n8n worker --task-runner:type=python &
+# We use 'worker' to handle Python tasks. 
+# It will automatically use your N8N_RUNNERS_AUTH_TOKEN and 127.0.0.1:5679 env vars.
+$N8N_BIN worker --task-runner:type=python &
+WORKER_PID=$!
 
-# Wait for any process to exit
+echo "n8n and Python Runner are now active."
+
+# 3. Process Monitoring
+# This 'wait -n' ensures that if EITHER the main server or the worker crashes,
+# the script exits, causing Render to restart the container immediately.
 wait -n
 
-# Exit with status of process that exited first
+# Exit with the status of the process that died
 exit $?
