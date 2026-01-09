@@ -16,9 +16,11 @@ RUN apt-get update && apt-get install -y \
 RUN npm install -g n8n@latest
 
 # Install official n8n task runner launcher
-RUN curl -fL -o /usr/local/bin/task-runner-launcher \
-  https://github.com/n8n-io/task-runner-launcher/releases/download/v1.1.1/task-runner-launcher-linux-amd64 \
-  && chmod +x /usr/local/bin/task-runner-launcher
+RUN curl -fL -o /tmp/task-runner-launcher.tar.gz \
+    https://github.com/n8n-io/task-runner-launcher/releases/download/1.4.2/task-runner-launcher-1.4.2-linux-amd64.tar.gz \
+    && tar -xzf /tmp/task-runner-launcher.tar.gz -C /usr/local/bin \
+    && chmod +x /usr/local/bin/task-runner-launcher \
+    && rm /tmp/task-runner-launcher.tar.gz
 
 WORKDIR /home/node
 
