@@ -4,7 +4,7 @@ set -e
 echo "Starting n8n..."
 n8n start &
 
-# Give broker a few seconds to start
+# Give broker a few second to start
 sleep 5
 
 echo "Starting JavaScript task runner..."
