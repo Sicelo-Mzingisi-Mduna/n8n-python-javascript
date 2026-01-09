@@ -1,11 +1,9 @@
 {
-  "runners": [
+  "taskRunners": [
     {
-      "name": "python-runner",
+      "id": "python-runner-1",
       "type": "python",
-      "command": ["python3"],
-      "workingDirectory": "/home/node",
-      "maxConcurrency": 2
+      "concurrency": 1
     }
   ]
 }
