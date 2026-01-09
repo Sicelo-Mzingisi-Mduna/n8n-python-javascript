@@ -1,31 +1,33 @@
 #!/bin/bash
 # ===================================================
-# n8n startup script for Render
-# Supports JS and Python task runners
+# n8n startup script for Render (External Mode)
 # ===================================================
-echo "Checking if Python task runner exists..."
-ls -l /home/node/n8n-python-javascript/
 
-set -e  # Exit immediately if a command fails
+set -e
 
 # Ensure global npm binaries are in PATH
 export PATH=$PATH:/usr/local/bin
 
-# Optional: make sure Python scripts can run
-export PYTHONUNBUFFERED=1
-
-# --- Start main n8n server ---
-echo "Starting n8n main server..."
+echo "--- 1. Starting n8n Main Server (The Broker) ---"
+# This process will listen on port 5679 for runners because N8N_RUNNERS_MODE=external
 n8n start &
 
-# Give the main server a few seconds to initialize
-sleep 5
+# Wait for the main server to initialize the broker
+# 10 seconds is safer to prevent connection refused errors on startup
+echo "Waiting 10s for Broker to initialize..."
+sleep 10
 
-# --- Start JavaScript task runner ---
-echo "Starting JavaScript task runner..."
+echo "--- 2. Starting JavaScript Task Runner ---"
+# This handles standard JS nodes externally
 n8n task-runner &
 
-# --- Start Python task runner ---
-echo "Starting Python task runner..."
-python3 /home/node/n8n-python-javascript/run-python-tasks.py &
-wait
+echo "--- 3. Starting Python Task Runner ---"
+# This handles Python nodes externally
+# It uses the env vars N8N_RUNNERS_BROKER_HOST/PORT to connect to the process above
+n8n task-runner python &
+
+# Wait for any process to exit
+wait -n
+
+# Exit with status of process that exited first
+exit $?
