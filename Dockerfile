@@ -34,6 +34,14 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY n8n-task-runners.json /home/node/.n8n/n8n-task-runners.json
 RUN chown node:node /home/node/.n8n/n8n-task-runners.json
 
+# DEBUG: Verify file existence and permissions
+RUN echo "DEBUG: Listing /home/node/.n8n" \
+    && ls -la /home/node/.n8n \
+    && echo "DEBUG: Showing n8n-task-runners.json contents" \
+    && cat /home/node/.n8n/n8n-task-runners.json \
+    && echo "DEBUG: Checking task-runner-launcher version" \
+    && /usr/local/bin/task-runner-launcher --version
+
 # Set environment variable for task runners
 ENV N8N_TASK_RUNNERS_FILE=/home/node/.n8n/n8n-task-runners.json
 ENV NODE_ENV=production
