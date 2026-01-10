@@ -26,10 +26,17 @@ WORKDIR /home/node
 
 RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
 
+# Add task runners config
+COPY n8n-task-runners.json /etc/secrets/n8n-task-runners.json
+
+
 # Supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Default env
 ENV NODE_ENV=production
+ENV N8N_RUNNERS_AUTH_TOKEN=a9x4HbP1YzW8c3T2sNQdF0RZ6BeYJX
+ENV N8N_RUNNERS_CONFIG_PATH=/etc/secrets/n8n-task-runners.json
 
 EXPOSE 5678
 EXPOSE 5679
