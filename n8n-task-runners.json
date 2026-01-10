@@ -1,9 +1,0 @@
-{
-  "taskRunners": [
-    {
-      "id": "python-runner-1",
-      "type": "python",
-      "concurrency": 1
-    }
-  ]
-}
